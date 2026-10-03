@@ -74,9 +74,12 @@ def process_gcd_data(file):
             sc *= 4
             
         # Specific Energy via Trapezoidal Integration (Wh/kg)
+        # Compatible with both NumPy 1.x (np.trapz) and NumPy 2.x (np.trapezoid)
         v_pos = np.abs(discharge_df['Potential'].values - discharge_df.iloc[-1]['Potential'])
         t_vals = discharge_df['Time'].values
-        integral_v_dt = np.trapz(v_pos, t_vals)
+        
+        trapz_fn = getattr(np, 'trapezoid', getattr(np, 'trapz', None))
+        integral_v_dt = trapz_fn(v_pos, t_vals)
         se = (cd_val * integral_v_dt) / 3.6
         
         # Plotting discharge curve
